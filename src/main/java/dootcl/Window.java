@@ -78,6 +78,15 @@ public class Window {
         System.out.println("Window is trying to run. LWJGL version " + Version.getVersion());
         init();
         loop();
+
+        //free memory
+        glfwFreeCallbacks(this.glfwWindow);
+        glfwDestroyWindow(this.glfwWindow);
+
+        // terminate GLFW and free the error callback
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
+
     }
 
 }
