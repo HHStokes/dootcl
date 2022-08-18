@@ -53,6 +53,11 @@ public class Window {
         if(this.glfwWindow == NULL){
             throw new RuntimeException("GLFW failed to create a new window");
         }
+        // Mouse listener
+        glfwSetCursorPosCallback(this.glfwWindow, MouseListener::mousePosCallback);
+        glfwSetMouseButtonCallback(this.glfwWindow, MouseListener::mouseButtonCallback);
+        glfwSetScrollCallback(this.glfwWindow, MouseListener::mouseScrollCallback);
+        glfwSetKeyCallback(this.glfwWindow, KeyListener::keyCallback);
 
         // Make OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
@@ -68,8 +73,16 @@ public class Window {
         while(!glfwWindowShouldClose(this.glfwWindow)){
             // Poll events
             glfwPollEvents();
+
+            // Window color
             glClearColor(0.14f, 0.10f, 0.19f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            // listeners
+            if(KeyListener.isKeyPressed(GLFW_KEY_SPACE)){
+                System.out.println("Spaaaaaaaaaaace");
+            }
+
             glfwSwapBuffers(this.glfwWindow);
         }
     }
