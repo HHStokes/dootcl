@@ -1,17 +1,20 @@
 package dootcl;
 
+import dootcl.listeners.KeyListener;
+import dootcl.listeners.MouseListener;
+import dootcl.scenes.LevelEditorScene;
+import dootcl.scenes.LevelScene;
+import dootcl.scenes.Scene;
+import dootcl.util.Time;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
-
-import java.nio.*;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
+import java.util.Hashtable;
 
 
 public class Window {
@@ -19,11 +22,28 @@ public class Window {
     private String title;
     private long glfwWindow;
     private static Window window = null;
+    private static Scene currentScene;
+//    public Hashtable<String, float[]> windowColors = new Hashtable<String, float[]>(;
 
     private Window() {
         this.width = 1920;
         this.height = 1080;
-        this.title = "Doot ver 0.0.1";
+        this.title = "DootCL ver 0.0.1";
+    }
+    public static void changeScene(int newScene) {
+        switch (newScene) {
+            case 0:
+                currentScene = new LevelEditorScene();
+                currentScene.init();
+                break;
+            case 1:
+                currentScene = new LevelScene();
+                currentScene.init();
+                break;
+            default:
+                assert false : "Unknown scene '" + newScene +"'";
+                break;
+        }
     }
 
     public static Window get(){
@@ -68,14 +88,19 @@ public class Window {
         glfwShowWindow(glfwWindow);
 
         GL.createCapabilities();
+
+        Window.changeScene(0);
     }
     public void loop(){
+        float beginTime = Time.getTime();
+        float dt = -1.0f;
+
         while(!glfwWindowShouldClose(this.glfwWindow)){
             // Poll events
             glfwPollEvents();
 
             // Window color
-            glClearColor(0.14f, 0.10f, 0.19f, 1.0f);
+            glClearColor(0.14f, 0.10f, 0.19f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             // listeners
@@ -83,12 +108,21 @@ public class Window {
                 System.out.println("Spaaaaaaaaaaace");
             }
 
+            if(dt >= 0) {
+              currentScene.update(dt);
+            }
+
             glfwSwapBuffers(this.glfwWindow);
+
+            //creating dt
+            float endTime = Time.getTime();
+            dt =  endTime - beginTime;
+            beginTime = endTime;
         }
     }
 
     public void run(){
-        System.out.println("Window is trying to run. LWJGL version " + Version.getVersion());
+        System.out.println("Window is trying to run LWJGL version " + Version.getVersion());
         init();
         loop();
 
